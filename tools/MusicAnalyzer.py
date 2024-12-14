@@ -32,15 +32,15 @@ class MusicAnalyzer:
         Инициализация класса.
 
         :param audio_path: Путь к аудиофайлу.
-        :type audio_path: `str`
+        :type audio_path: str
         :param frame_length: Длина окна для вычисления RMS (по умолчанию 2048).
-        :type frame_length: `int`
+        :type frame_length: int
         :param hop_length: Шаг окна (по умолчанию 512).
-        :type hop_length: `int`
+        :type hop_length: int
         :param strength_window: Окно времени (в секундах) вокруг бита для оценки его силы (по умолчанию 0.05).
-        :type strength_window: `float`
+        :type strength_window: float
         :param verbose: Флаг для вывода подробной информации (по умолчанию False).
-        :type verbose: `bool`
+        :type verbose: bool
         :param log_file: Путь к файлу для сохранения логов (по умолчанию None).
         :type log_file: Optional[str]
         """
@@ -93,7 +93,7 @@ class MusicAnalyzer:
         Установка флага verbose для вывода подробной информации.
 
         :param verbose: Флаг для вывода подробной информации.
-        :type verbose: `bool`
+        :type verbose: bool
         """
         self.__verbose = verbose
         # Изменение уровня консольного обработчика
@@ -150,9 +150,9 @@ class MusicAnalyzer:
         Получение RMS энергии в окне вокруг бита.
 
         :param beat_time: Время бита в секундах.
-        :type beat_time: `float`
+        :type beat_time: float
         :return: Среднее значение RMS энергии в окне вокруг бита.
-        :rtype: `float`
+        :rtype: float
         """
         start_time = beat_time - self.strength_window / 2
         end_time = beat_time + self.strength_window / 2
@@ -194,9 +194,9 @@ class MusicAnalyzer:
         Получение топ-N самых сильных битов.
 
         :param top_n: Количество топ-битов для выбора (по умолчанию 10).
-        :type top_n: `int`
+        :type top_n: int
         :return: DataFrame с топ-битами.
-        :rtype: `pd.DataFrame`
+        :rtype: pd.DataFrame
         :raises MusicException: Если DataFrame битов не создан.
         """
         if self.df_beats is None:
@@ -211,9 +211,9 @@ class MusicAnalyzer:
         Получение битов с силой выше заданного процентиля.
 
         :param percentile: Процентиль для определения порога (должен быть в диапазоне (0, 1], по умолчанию 0.75).
-        :type percentile: `float`
+        :type percentile: float
         :return: DataFrame с сильными битами.
-        :rtype: `pd.DataFrame`
+        :rtype: pd.DataFrame
         :raises MusicException: Если DataFrame битов не создан или процентиль вне допустимого диапазона.
         """
         if self.df_beats is None:
@@ -227,12 +227,13 @@ class MusicAnalyzer:
         self.logger.info(f"Биты с силой выше {percentile * 100}-го процентиля ({threshold:.4f}) выбраны.")
         return strong_beats
 
+
     def visualize_beats(self, top_n: int = 10) -> None:
         """
         Визуализация всех битов и топ-N самых сильных битов на временной шкале.
 
         :param top_n: Количество топ-битов для выделения (по умолчанию 10).
-        :type top_n: `int`
+        :type top_n: int
         :raises MusicException: Если DataFrame битов не создан.
         """
         if self.df_beats is None:
@@ -258,12 +259,13 @@ class MusicAnalyzer:
         plt.title('Обнаружение и визуализация битов в аудиофайле')
         plt.show()
 
+
     def save_beats_to_csv(self, filepath: str = 'beat_times.csv') -> None:
         """
         Сохранение всех битов и их силы в CSV файл.
 
         :param filepath: Путь для сохранения CSV файла (по умолчанию 'beat_times.csv').
-        :type filepath: `str`
+        :type filepath: str
         :raises MusicException: Если DataFrame битов не создан.
         """
         if self.df_beats is None:
