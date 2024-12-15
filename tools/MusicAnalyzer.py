@@ -227,7 +227,6 @@ class MusicAnalyzer:
         self.logger.info(f"Биты с силой выше {percentile * 100}-го процентиля ({threshold:.4f}) выбраны.")
         return strong_beats
 
-
     def visualize_beats(self, top_n: int = 10) -> None:
         """
         Визуализация всех битов и топ-N самых сильных битов на временной шкале.
@@ -245,20 +244,20 @@ class MusicAnalyzer:
         librosa.display.waveshow(self.y, sr=self.sr, alpha=0.6, label='Waveform')
 
         # Нанесение всех битов
-        plt.vlines(self.df_beats['Beat Time (s)'], ymin=-1, ymax=1, color='gray', linestyle='--', alpha=0.5,
-                   label='Beats')
+        plt.vlines(self.get_top_beats(len(self.df_beats) // 10)['Beat Time (s)'], ymin=-1, ymax=1, color='gray',
+                   linestyle='--', alpha=0.5,
+                   label='Top 10% Beats')
 
         # Нанесение топ-битов
         top_beats = self.get_top_beats(top_n)
         plt.vlines(top_beats['Beat Time (s)'], ymin=-1, ymax=1, color='r', linestyle='-', linewidth=2,
-                   label='Top Beats')
+                   label='Selected Beats')
 
         plt.legend()
         plt.xlabel('Время (с)')
         plt.ylabel('Амплитуда')
         plt.title('Обнаружение и визуализация битов в аудиофайле')
         plt.show()
-
 
     def save_beats_to_csv(self, filepath: str = 'beat_times.csv') -> None:
         """
@@ -279,6 +278,20 @@ class MusicAnalyzer:
         except Exception as e:
             self.logger.error(f"Ошибка сохранения CSV файла: {e}")
             raise MusicException(f"Ошибка сохранения CSV файла: {e}")
+
+    def get_audio_duration(self) -> float:
+        """
+        Возвращает длительность музыкального файла.
+
+        :return: Длительность файла в секундах.
+        :rtype: float
+        """
+        try:
+            # Загружаем только информацию о длительности файла
+            duration = librosa.get_duration(filename=self.audio_path)
+            return duration
+        except Exception as e:
+            raise MusicException(f"Ошибка при получении длительности файла: {e}")
 
     def process(self) -> None:
         """

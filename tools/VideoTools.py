@@ -23,7 +23,7 @@ def make_video(input_path: str, duration: float) -> VideoClip:
 
     if ext in video_extensions:
         try:
-            base_clip = VideoFileClip(input_path)
+            base_clip = VideoFileClip(input_path, has_mask=False)
             final_clip = loop_video_clip(base_clip, duration)
             return final_clip
         except Exception as e:
@@ -86,31 +86,46 @@ def scale_clips(base_clip: VideoClip, clips: list, k: float = 1) -> list:
         max_bg_side = bg_h
         max_bg_side_index = 1
 
-    # Находим максимальную большую сторону среди всех клипов
+    # Наход им максимальную большую сторону среди всех клипов
     max_side = 0
     for c in clips:
         bigger_side = c.size[max_bg_side_index]
         if bigger_side > max_side:
             max_side = bigger_side
 
-    # Рассчитываем коэффициент масштабирования
     scale_factor = (k * max_bg_side) / max_side
 
-    # Масштабируем все клипы
     scaled_clips = [c.resize(scale_factor) for c in clips]
 
     return scaled_clips
 
-def insert_image_clip_random(base_clip: VideoClip, sample: ImageClip | VideoClip, start: float,
-                      end: float) -> VideoClip:
-    boards = base_clip.size
+
+def insert_image_clip_random(main_clip: VideoClip, sample: ImageClip | VideoClip, start: float,
+                             end: float) -> ImageClip:
+    """
+    Создаёт вставляемый клип с случайной позицией и временным интервалом.
+
+    :param main_clip: Основной видеоклип для получения размеров.
+    :param sample: Вставляемый изображение или видео.
+    :param start: Время начала появления клипа.
+    :param end: Время окончания появления клипа.
+    :return: Вставляемый ImageClip с установленными позицией и временем.
+    """
+    boards = main_clip.size
     sample_boards = sample.size
     allowed_pos = (boards[0] - sample_boards[0], boards[1] - sample_boards[1])
     if allowed_pos[0] < 0 or allowed_pos[1] < 0:
-        raise ValueError("Невозможно вместить клип")
+        raise ValueError("Невозможно вместить клип", allowed_pos)
 
-    pos = (randint(0, allowed_pos[0]), randint(0, allowed_pos[1]))
-    return insert_image_clip(base_clip, sample, pos, start, end)
+    pos = (randint(0, allowed_pos[0] + 1), randint(0, allowed_pos[1] + 1))
+    duration = end - start
+
+    if not isinstance(sample, ImageClip):
+        sample = loop_video_clip(sample, duration)
+
+    img_clip = sample.set_position(pos).set_start(start).set_duration(duration)
+    return img_clip
+
 
 def loop_video_clip(clip: VideoClip, duration: float) -> VideoClip:
     clip_duration = clip.duration
